@@ -1,0 +1,19 @@
+{
+  "name": "cryptoguard-web",
+  "version": "1.0.0",
+  "description": "Ed25519 Detached Digital Signature & Verification Web Application",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "build": "tsc"
+  },
+  "keywords": [
+    "ed25519",
+    "digital-signatures",
+    "cryptography",
+    "verification",
+    "rfc8032"
+  ],
+  "author": "Aryan & Team",
+  "license": "MIT"
+}

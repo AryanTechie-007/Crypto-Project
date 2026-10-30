@@ -1,9 +1,10 @@
 # Digital Signature-Based Document Verification System
 
-> **A Python-based digital document verification system using Ed25519 digital signatures, tamper detection, public-key verification, and cryptographic trust validation.**
+> **A modern digital document verification system using Ed25519 digital signatures, tamper detection, public-key verification, and cryptographic trust validation with an interactive Drag-and-Drop Web Application.**
 
 [![Algorithm](https://img.shields.io/badge/Algorithm-Ed25519%20(RFC%208032)-blue.svg)](#)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-brightgreen.svg)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](#)
 [![Library](https://img.shields.io/badge/Cryptography-pyca%2Fcryptography-orange.svg)](#)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](#)
 
@@ -26,9 +27,29 @@ The core objective is to allow an author to digitally sign a document using the 
 Crypto-Project/
 ├── .gitignore                      # Excludes private keys, caches, virtual environments
 ├── requirements.txt                # Project dependencies (cryptography, pytest)
+├── package.json                    # Web frontend package manifest (TypeScript)
+├── tsconfig.json                   # TypeScript compiler configuration
+├── start.bat                       # [Batchfile] Windows 1-click launcher
+├── start.sh                        # [Shell] Linux/macOS 1-click launcher
+├── server.py                       # [Python] In-memory HTTP cryptographic API server
 ├── README.md                       # Project documentation & execution guide
 │
-├── src/                            # Core source code
+├── web/                            # Interactive Web Application (TypeScript / JS / HTML / CSS)
+│   ├── index.html                  # [HTML] Semantic interface with Vertical Tabs & Dropzones
+│   ├── static/
+│   │   ├── css/
+│   │   │   └── styles.css          # [CSS] Modern glassmorphic styles, animations & themes
+│   │   └── js/
+│   │       ├── api.js              # [JavaScript] HTTP API client module
+│   │       ├── dropzone.js         # [JavaScript] Drag-and-drop file manager
+│   │       └── app.js              # [JavaScript] App controller & dynamic UI renderer
+│   └── src/
+│       ├── types.ts                # [TypeScript] Strong type definitions
+│       ├── api.ts                  # [TypeScript] Typed API client
+│       ├── dropzone.ts             # [TypeScript] Drag-and-drop manager class
+│       └── app.ts                  # [TypeScript] Main application orchestrator
+│
+├── src/                            # Core Cryptographic Engine (RFC 8032 Ed25519)
 │   ├── __init__.py                 # Package declaration and public API exports
 │   ├── key_manager.py              # [Person 1] Ed25519 key generation, PEM serialization & security
 │   ├── document_signer.py          # [Person 1] Detached document signing (exact byte preservation)
@@ -41,7 +62,8 @@ Crypto-Project/
 │   ├── test_key_generation.py      # [Person 1] Tests key generation, serialization, passphrase protection
 │   ├── test_sign_verify.py         # [Person 1/2] Tests signing, verification, and tamper detection
 │   ├── test_security_experiments.py # [Person 2] Five required security experiments & key-trust tests
-│   └── test_cli.py                 # [Person 3] End-to-end CLI command and workflow tests
+│   ├── test_cli.py                 # [Person 3] End-to-end CLI command and workflow tests
+│   └── test_web_api.py             # [Team] In-memory Web API and static file serving tests
 │
 ├── sample_data/                    # Sample documents for verification
 │   └── sample_document.txt         # Synthetic university academic credential
@@ -58,47 +80,32 @@ Crypto-Project/
 
 ---
 
-## 👥 Team Work Distribution
+## 🚀 Quick Start & Launch
 
-| Member | Role | Core Deliverables |
-| :--- | :--- | :--- |
-| **Person 1** | **Cryptographic Core & Key Management** | Ed25519 key generation (`key_manager.py`), detached signing (`document_signer.py`), private-key security, cryptographic documentation, and baseline test suite. |
-| **Person 2** | **Verification, Key Trust & Experiments** | Verification robustness (`signature_verifier.py`), key fingerprinting (`key_fingerprint.py`), five required security experiment tests (`test_security_experiments.py`), and documentation (`experiments.md`). |
-| **Person 3** | **Application Interface & Submission** | User interface / CLI (`main.py`), end-to-end integration, CLI test suite (`test_cli.py`), execution guide, and final report compilation. |
+### 1. Launch the CryptoGuard Application
+
+Launch the application with **Vertical Navigation Tabs** and **Drag-and-Drop Dropzones** (zero hardcoded paths):
+
+**On Windows:**
+Double-click `start.bat` or run:
+```powershell
+.\start.bat
+# or: python server.py
+```
+
+**On Linux / macOS:**
+```bash
+chmod +x start.sh
+./start.sh
+# or: python3 server.py
+```
+
+The application starts at **`http://localhost:8080`** and opens automatically in your default browser.
 
 ---
 
-## 🚀 Quick Start & Installation
-
-### 1. Prerequisites
-* Python 3.9+ (Python 3.11+ recommended)
-* `pip` package manager
-
-### 2. Setup Environment
-```bash
-# Clone the repository
-git clone https://github.com/AryanTechie-007/Crypto-Project.git
-cd Crypto-Project
-
-# (Optional) Create and activate a virtual environment
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# Linux/macOS:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 3. Launch the Desktop Application (CryptoGuard)
-Launch the interactive desktop GUI with dark/light mode and drag-and-drop file pickers:
-```bash
-python run_app.py
-```
-
-### 4. Run the Automated Test Suite
-All 42 tests use Python's built-in `unittest` runner (no external test runner required) and are also fully compatible with `pytest`:
+### 2. Run the Automated Test Suite
+All 42 tests use Python's built-in `unittest` runner and are also fully compatible with `pytest`:
 ```bash
 # Using standard Python unittest runner:
 python -m unittest discover tests -v
@@ -109,116 +116,32 @@ pytest -v
 
 ---
 
-## 💻 Command-Line Interface (CLI)
+## 🖥️ Application Features & Workflows
 
-The application provides a unified CLI orchestrator in `src/main.py`:
-
-```bash
-python -m src.main --help
-```
-
-### 1. Verify Sample Document (Default Submission Artifacts)
-Verify the repository's pre-signed document against its detached signature and public key:
-```bash
-python -m src.main verify
-```
-Or specify explicit file paths:
-```bash
-python -m src.main verify \
-    --document sample_data/sample_document.txt \
-    --signature artifacts/sample_document.sig \
-    --public-key artifacts/signer_public_key.pem
-```
-
-### 2. Display and Check Public-Key Fingerprint (Trust Validation)
-Compute the canonical SHA-256 fingerprint:
-```bash
-python -m src.main fingerprint --public-key artifacts/signer_public_key.pem
-```
-Optionally verify the public key against an expected, trusted reference to detect substitution attacks:
-```bash
-python -m src.main fingerprint \
-    --public-key artifacts/signer_public_key.pem \
-    --expected "SHA256:56:fe:17:fc:1f:68:09:4e:93:34:a6:9f:9b:fe:fc:30:d9:4b:f9:37:94:43:82:d1:72:d7:79:fc:8f:db:c2:c3"
-```
-
-### 3. Generate a New Key Pair
-Generate a new Ed25519 private key (optionally passphrase encrypted) and SPKI public key:
-```bash
-# Prompted interactively for passphrase:
-python -m src.main keygen --private-key private/new_key.pem --public-key keys/new_pub.pem
-
-# Or without passphrase (unencrypted):
-python -m src.main keygen --private-key private/unenc.pem --public-key keys/unenc.pem --no-password
-```
-
-### 4. Sign a Document (Detached Signature)
-Generate an exact 64-byte detached `.sig` file for any document:
-```bash
-python -m src.main sign \
-    --document sample_data/sample_document.txt \
-    --private-key private/new_key.pem \
-    --signature my_doc.sig
-```
-
-### 5. Run Complete Demonstration Workflow
-Runs the entire 3-phase demonstration: auditing repository artifacts, generating a demo key pair, signing, verifying, fingerprint trust matching, and demonstrating tamper detection:
-```bash
-python -m src.main all
-```
+1. **Vertical Navigation Tabs:**
+   * Left-hand sidebar with tabs for **Verify Document**, **Sign Document**, **Generate Keys**, **Key Fingerprint**, and **Security Lab**.
+2. **Drag-and-Drop Logic:**
+   * Interactive dropzones for documents, detached `.sig` signatures, and `.pem` keys with dragover animations, file previews, and instant byte parsing.
+3. **Zero Hardcoded Paths:**
+   * All files are read in-memory directly in the browser and transmitted as Base64 payloads to the in-memory cryptographic core.
+4. **Document Verification:**
+   * Instant color-coded badges: **Green** for Authentic and unmodified documents; **Red** for tampered files, invalid keys, or corrupted signatures.
+   * Auto-extracts the signer's public key fingerprint.
+5. **Interactive Security Lab:**
+   * Executes all 5 required university security experiments live in one click.
 
 ---
 
-## 🔑 Core Python API Usage
+## 💻 Command-Line Interface (CLI)
 
-### 1. Generating an Ed25519 Key Pair
-```python
-from src.key_manager import KeyManager
+The CLI orchestrator in `src/main.py` is preserved for scripting:
 
-# Generate keys in memory
-private_key, public_key = KeyManager.generate_key_pair()
-
-# Save public key (safe for distribution)
-KeyManager.save_public_key(public_key, "artifacts/signer_public_key.pem")
-
-# Save private key securely (optionally password-protected)
-KeyManager.save_private_key(private_key, "private/my_private_key.pem", password="MySecurePassword!")
-```
-
-### 2. Signing a Document (Detached Signature)
-```python
-from src.document_signer import DocumentSigner
-
-# Generates a 64-byte detached .sig file, leaving original document unchanged
-signature = DocumentSigner.sign_document(
-    document_path="sample_data/sample_document.txt",
-    private_key="private/my_private_key.pem",
-    signature_output_path="artifacts/sample_document.sig",
-    password="MySecurePassword!"
-)
-```
-
-### 3. Verifying a Document Signature
-```python
-from src.signature_verifier import SignatureVerifier
-
-result = SignatureVerifier.verify_document(
-    document_path="sample_data/sample_document.txt",
-    signature_source="artifacts/sample_document.sig",
-    public_key_source="artifacts/signer_public_key.pem"
-)
-
-print("Is Authentic:", result.is_valid)
-print("Details:", result.message)
-```
-
-### 4. Computing Public-Key Fingerprint (Trust Verification)
-```python
-from src.key_fingerprint import KeyFingerprint
-
-fingerprint = KeyFingerprint.compute_fingerprint("artifacts/signer_public_key.pem")
-print("Public Key Fingerprint:", fingerprint)
-# Output: SHA256:xx:xx:xx:...
+```bash
+python -m src.main verify
+python -m src.main keygen
+python -m src.main sign
+python -m src.main fingerprint
+python -m src.main all
 ```
 
 ---

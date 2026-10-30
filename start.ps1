@@ -1,13 +1,13 @@
 <#
 .SYNOPSIS
-    CryptoGuard - Ed25519 Document Verification System Launcher for PowerShell
+    CryptoGuard - Ed25519 Document Verification System Launcher (Electron Desktop Application)
 #>
 
-$Host.UI.RawUI.WindowTitle = "CryptoGuard - Ed25519 Document Verification System"
+$Host.UI.RawUI.WindowTitle = "CryptoGuard - Ed25519 Desktop Application"
 Set-Location -Path $PSScriptRoot
 
 Write-Host "======================================================================" -ForegroundColor Cyan
-Write-Host " CryptoGuard - Ed25519 Document Verification System" -ForegroundColor Cyan
+Write-Host " CryptoGuard - Ed25519 Desktop Application (Electron)" -ForegroundColor Cyan
 Write-Host "======================================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -17,8 +17,10 @@ if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
-Write-Host "Starting local application server..." -ForegroundColor Green
-Write-Host "Serving Web Application at http://localhost:8080" -ForegroundColor Green
-Write-Host "Press Ctrl+C to stop.`n" -ForegroundColor DarkGray
-
-python server.py 8080
+if (Get-Command npm -ErrorAction SilentlyContinue) {
+    Write-Host "Starting Electron desktop application..." -ForegroundColor Green
+    npm start
+} else {
+    Write-Host "[WARNING] npm not found in PATH. Launching in local web server mode..." -ForegroundColor Yellow
+    python server.py 8080
+}

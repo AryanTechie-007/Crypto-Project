@@ -63,3 +63,6 @@ private/
 keys/private/
 *.p8
 *.pkcs8
+
+# Node / Electron build artifacts
+node_modules/

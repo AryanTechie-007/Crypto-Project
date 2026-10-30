@@ -426,37 +426,47 @@ class CryptoGuardHandler(BaseHTTPRequestHandler):
             self.send_json(500, {"error": str(e)})
 
 
-def run_server(port: int = 8080):
+def run_server(port: int = 8080, open_browser: bool = True):
     server_address = ("", port)
     try:
         httpd = ThreadingHTTPServer(server_address, CryptoGuardHandler)
     except OSError:
         port = 8081
         server_address = ("", port)
-        httpd = ThreadingHTTPServer(server_address, CryptoGuardHandler)
+        try:
+            httpd = ThreadingHTTPServer(server_address, CryptoGuardHandler)
+        except OSError:
+            server_address = ("", 0)
+            httpd = ThreadingHTTPServer(server_address, CryptoGuardHandler)
+            port = httpd.server_port
 
     url = f"http://localhost:{port}"
     print(f"\n========================================================")
-    print(f" CryptoGuard Web Application Server Running")
+    print(f" CryptoGuard Application Server Running")
     print(f" URL: {url}")
+    print(f" SERVER_READY_PORT:{port}")
     print(f" Press Ctrl+C to stop the server")
-    print(f"========================================================\n")
+    print(f"========================================================\n", flush=True)
 
-    # Open browser automatically if not in headless environment
-    try:
-        webbrowser.open(url)
-    except Exception:
-        pass
+    if open_browser:
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
 
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\nServer stopped.")
+        print("\nServer stopped.", flush=True)
         httpd.server_close()
 
 
 if __name__ == "__main__":
     port = 8080
-    if len(sys.argv) > 1 and sys.argv[1].isdigit():
-        port = int(sys.argv[1])
-    run_server(port)
+    open_browser = True
+    for arg in sys.argv[1:]:
+        if arg.isdigit():
+            port = int(arg)
+        elif arg in ("--no-browser", "--electron"):
+            open_browser = False
+    run_server(port, open_browser=open_browser)

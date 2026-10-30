@@ -22,10 +22,21 @@ class CryptoGuardApp {
         this.initKeygenActions();
         this.initFingerprintActions();
         this.initExperimentsActions();
+        this.initDesktopMode();
     }
     // -------------------------------------------------------------
     // Theme Management (Dark / Light)
     // -------------------------------------------------------------
+    initDesktopMode() {
+        const desktop = window.cryptoGuardDesktop;
+        if (desktop && desktop.isElectron) {
+            const badge = document.getElementById('appModeBadge');
+            if (badge) {
+                badge.style.display = 'inline-flex';
+                badge.textContent = "Electron Desktop App (v" + desktop.electronVersion + ")";
+            }
+        }
+    }
     initTheme() {
         const toggleBtn = document.getElementById('theme-toggle-btn');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -336,14 +347,14 @@ class CryptoGuardApp {
                     if (res.matches === true) {
                         trustResultBox.classList.add('banner-success');
                         trustResultBox.innerHTML = `
-              <strong>&#10004; TRUSTED — FINGERPRINT MATCHES</strong><br/>
+              <strong>&#10004; TRUSTED ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â FINGERPRINT MATCHES</strong><br/>
               The public key matches the authenticated reference value. Public-key substitution is ruled out.
             `;
                     }
                     else {
                         trustResultBox.classList.add('banner-error');
                         trustResultBox.innerHTML = `
-              <strong>&#9888; UNTRUSTED — FINGERPRINT MISMATCH</strong><br/>
+              <strong>&#9888; UNTRUSTED ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â FINGERPRINT MISMATCH</strong><br/>
               The public key does NOT match the expected reference!<br/>
               Calculated: <code>${res.fingerprint}</code><br/>
               Expected: <code>${expected}</code><br/>

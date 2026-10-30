@@ -1,10 +1,10 @@
 @echo off
 setlocal
-title CryptoGuard - Ed25519 Document Verification System
+title CryptoGuard - Ed25519 Desktop Application
 cd /d "%~dp0"
 
 echo ======================================================================
-echo  CryptoGuard - Ed25519 Document Verification System
+echo  CryptoGuard - Ed25519 Desktop Application (Electron)
 echo ======================================================================
 echo.
 
@@ -16,10 +16,13 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo Starting local application server...
-echo Serving Web Application at http://localhost:8080
-echo.
-
-python server.py 8080
+where npm >nul 2>nul
+if %errorlevel% equ 0 (
+    echo Starting Electron desktop application...
+    call npm start
+) else (
+    echo [WARNING] npm was not found in PATH. Launching in local server mode...
+    python server.py 8080
+)
 
 pause

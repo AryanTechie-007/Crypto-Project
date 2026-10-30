@@ -48,6 +48,11 @@ htmlcov/
 .tox/
 .nox/
 
+# Audit reports and local assessment artifacts
+*.pdf
+*audit*
+scripts/
+
 # CRITICAL SECURITY REQUIREMENT (PDF Req 8):
 # Never commit private signing keys or credentials to the repository!
 *.key

@@ -37,11 +37,12 @@ const electron_1 = require("electron");
 const child_process_1 = require("child_process");
 const path = __importStar(require("path"));
 const http = __importStar(require("http"));
+// Disable hardware acceleration to prevent GPU blank screen glitches on Windows
+electron_1.app.disableHardwareAcceleration();
 let mainWindow = null;
 let pythonProcess = null;
 let serverPort = 8080;
 function findPythonCommand() {
-    // On Windows, 'python' is standard; on Linux/macOS, prefer 'python3'
     if (process.platform === "win32") {
         return "python";
     }
@@ -51,7 +52,6 @@ function startPythonBackend() {
     return new Promise((resolve, reject) => {
         const pythonCmd = findPythonCommand();
         const serverScript = path.join(electron_1.app.getAppPath(), "server.py");
-        // Spawn server.py with --electron to prevent opening browser
         pythonProcess = (0, child_process_1.spawn)(pythonCmd, [serverScript, "8080", "--electron"], {
             cwd: electron_1.app.getAppPath(),
             stdio: ["pipe", "pipe", "pipe"],
@@ -110,7 +110,7 @@ function startPythonBackend() {
                 if (attempts > 25 && !resolved) {
                     resolved = true;
                     cleanup();
-                    resolve(serverPort); // Try loading anyway
+                    resolve(serverPort);
                 }
             });
         }, 400);
@@ -123,7 +123,7 @@ function createMainWindow(port) {
         minWidth: 980,
         minHeight: 680,
         title: "CryptoGuard - Ed25519 Document Verification System",
-        backgroundColor: "#0d1117",
+        backgroundColor: "#0b0f19",
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
             contextIsolation: true,
@@ -133,11 +133,32 @@ function createMainWindow(port) {
         autoHideMenuBar: true,
         show: false
     });
+    // Diagnostics
+    mainWindow.webContents.on("did-fail-load", (event, errorCode, errorDescription, validatedURL) => {
+        console.error("[Electron Error] Page failed to load:", errorCode, errorDescription, validatedURL);
+    });
+    mainWindow.webContents.on("console-message", (event, level, message, line, sourceId) => {
+        // Forward renderer warnings and messages
+        if (level >= 2) {
+            console.warn("[Renderer]: " + message + " (" + sourceId + ":" + line + ")");
+        }
+    });
     mainWindow.loadURL("http://localhost:" + port);
     mainWindow.once("ready-to-show", () => {
         mainWindow?.show();
     });
-    // Open external links in default system browser, not in Electron window
+    mainWindow.webContents.on("did-finish-load", () => {
+        if (mainWindow && !mainWindow.isVisible()) {
+            mainWindow.show();
+        }
+    });
+    // Fallback to guarantee display if compositor events are delayed
+    setTimeout(() => {
+        if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+            mainWindow.show();
+        }
+    }, 1200);
+    // Open external links in default system browser, not inside the Electron window
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith("http://") || url.startsWith("https://")) {
             electron_1.shell.openExternal(url);
@@ -152,7 +173,6 @@ function stopPythonBackend() {
     if (pythonProcess && !pythonProcess.killed) {
         try {
             if (process.platform === "win32" && pythonProcess.pid) {
-                // Force kill child process tree on Windows
                 (0, child_process_1.spawn)("taskkill", ["/pid", pythonProcess.pid.toString(), "/f", "/t"]);
             }
             else {

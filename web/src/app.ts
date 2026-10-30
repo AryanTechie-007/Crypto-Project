@@ -382,13 +382,13 @@ class CryptoGuardApp {
           if (res.matches === true) {
             trustResultBox.classList.add('banner-success');
             trustResultBox.innerHTML = `
-              <strong>&#10004; TRUSTED ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â FINGERPRINT MATCHES</strong><br/>
+              <strong>&#10004; TRUSTED ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â FINGERPRINT MATCHES</strong><br/>
               The public key matches the authenticated reference value. Public-key substitution is ruled out.
             `;
           } else {
             trustResultBox.classList.add('banner-error');
             trustResultBox.innerHTML = `
-              <strong>&#9888; UNTRUSTED ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â FINGERPRINT MISMATCH</strong><br/>
+              <strong>&#9888; UNTRUSTED ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â FINGERPRINT MISMATCH</strong><br/>
               The public key does NOT match the expected reference!<br/>
               Calculated: <code>${res.fingerprint}</code><br/>
               Expected: <code>${expected}</code><br/>

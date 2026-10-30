@@ -29,16 +29,19 @@ Crypto-Project/
 ├── README.md                       # Project documentation & execution guide
 │
 ├── src/                            # Core source code
-│   ├── __init__.py                 # Package declaration
+│   ├── __init__.py                 # Package declaration and public API exports
 │   ├── key_manager.py              # [Person 1] Ed25519 key generation, PEM serialization & security
 │   ├── document_signer.py          # [Person 1] Detached document signing (exact byte preservation)
 │   ├── signature_verifier.py       # [Person 1/2] Safe signature verification & error handling
-│   └── key_fingerprint.py          # [Person 1/2] Canonical public-key SHA-256 fingerprinting
+│   ├── key_fingerprint.py          # [Person 1/2] Canonical public-key SHA-256 fingerprinting
+│   └── main.py                     # [Person 3] CLI application and workflow orchestrator
 │
 ├── tests/                          # Automated test suite (unittest / pytest compatible)
 │   ├── __init__.py
 │   ├── test_key_generation.py      # [Person 1] Tests key generation, serialization, passphrase protection
-│   └── test_sign_verify.py         # [Person 1/2] Tests signing, verification, and tamper detection
+│   ├── test_sign_verify.py         # [Person 1/2] Tests signing, verification, and tamper detection
+│   ├── test_security_experiments.py # [Person 2] Five required security experiments & key-trust tests
+│   └── test_cli.py                 # [Person 3] End-to-end CLI command and workflow tests
 │
 ├── sample_data/                    # Sample documents for verification
 │   └── sample_document.txt         # Synthetic university academic credential
@@ -49,7 +52,8 @@ Crypto-Project/
 │   └── sample_document.sig         # 64-byte detached digital signature of sample_document.txt
 │
 └── docs/                           # Technical documentation & security analysis
-    └── cryptographic_architecture.md # [Person 1] Mathematical basis, threat model & API spec
+    ├── cryptographic_architecture.md # [Person 1] Mathematical basis, threat model & API spec
+    └── experiments.md              # [Person 2] Security experiments log & observations
 ```
 
 ---
@@ -58,9 +62,9 @@ Crypto-Project/
 
 | Member | Role | Core Deliverables |
 | :--- | :--- | :--- |
-| **Person 1 (Current)** | **Cryptographic Core & Key Management** | Ed25519 key generation (`key_manager.py`), detached signing (`document_signer.py`), private-key security, cryptographic documentation, and baseline test suite. |
-| **Person 2** | **Verification, Key Trust & Experiments** | Verification robustness (`signature_verifier.py`), key fingerprinting (`key_fingerprint.py`), five required security experiment tests, and negative-test validation. |
-| **Person 3** | **Application Interface & Submission** | User interface / CLI (`main.py`), end-to-end integration, execution screenshots, setup guide, and final report compilation. |
+| **Person 1** | **Cryptographic Core & Key Management** | Ed25519 key generation (`key_manager.py`), detached signing (`document_signer.py`), private-key security, cryptographic documentation, and baseline test suite. |
+| **Person 2** | **Verification, Key Trust & Experiments** | Verification robustness (`signature_verifier.py`), key fingerprinting (`key_fingerprint.py`), five required security experiment tests (`test_security_experiments.py`), and documentation (`experiments.md`). |
+| **Person 3** | **Application Interface & Submission** | User interface / CLI (`main.py`), end-to-end integration, CLI test suite (`test_cli.py`), execution guide, and final report compilation. |
 
 ---
 
@@ -88,10 +92,10 @@ pip install -r requirements.txt
 ```
 
 ### 3. Run the Automated Test Suite
-All tests use Python's built-in `unittest` runner (no additional dependencies required) and are also fully compatible with `pytest`:
+All 34 tests use Python's built-in `unittest` runner (no external test runner required) and are also fully compatible with `pytest`:
 ```bash
 # Using standard Python unittest runner:
-python -m unittest discover tests
+python -m unittest discover tests -v
 
 # Or using pytest (if installed):
 pytest -v
@@ -99,7 +103,67 @@ pytest -v
 
 ---
 
-## 🔑 Core API Usage
+## 💻 Command-Line Interface (CLI)
+
+The application provides a unified CLI orchestrator in `src/main.py`:
+
+```bash
+python -m src.main --help
+```
+
+### 1. Verify Sample Document (Default Submission Artifacts)
+Verify the repository's pre-signed document against its detached signature and public key:
+```bash
+python -m src.main verify
+```
+Or specify explicit file paths:
+```bash
+python -m src.main verify \
+    --document sample_data/sample_document.txt \
+    --signature artifacts/sample_document.sig \
+    --public-key artifacts/signer_public_key.pem
+```
+
+### 2. Display and Check Public-Key Fingerprint (Trust Validation)
+Compute the canonical SHA-256 fingerprint:
+```bash
+python -m src.main fingerprint --public-key artifacts/signer_public_key.pem
+```
+Optionally verify the public key against an expected, trusted reference to detect substitution attacks:
+```bash
+python -m src.main fingerprint \
+    --public-key artifacts/signer_public_key.pem \
+    --expected "SHA256:56:fe:17:fc:1f:68:09:4e:93:34:a6:9f:9b:fe:fc:30:d9:4b:f9:37:94:43:82:d1:72:d7:79:fc:8f:db:c2:c3"
+```
+
+### 3. Generate a New Key Pair
+Generate a new Ed25519 private key (optionally passphrase encrypted) and SPKI public key:
+```bash
+# Prompted interactively for passphrase:
+python -m src.main keygen --private-key private/new_key.pem --public-key keys/new_pub.pem
+
+# Or without passphrase (unencrypted):
+python -m src.main keygen --private-key private/unenc.pem --public-key keys/unenc.pem --no-password
+```
+
+### 4. Sign a Document (Detached Signature)
+Generate an exact 64-byte detached `.sig` file for any document:
+```bash
+python -m src.main sign \
+    --document sample_data/sample_document.txt \
+    --private-key private/new_key.pem \
+    --signature my_doc.sig
+```
+
+### 5. Run Complete Demonstration Workflow
+Runs the entire 3-phase demonstration: auditing repository artifacts, generating a demo key pair, signing, verifying, fingerprint trust matching, and demonstrating tamper detection:
+```bash
+python -m src.main all
+```
+
+---
+
+## 🔑 Core Python API Usage
 
 ### 1. Generating an Ed25519 Key Pair
 ```python

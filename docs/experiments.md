@@ -83,5 +83,4 @@ fingerprints across PEM, raw-byte, and in-memory public-key representations.
 
 ## Test summary
 
-The project test suite currently contains **23 tests**, all passing in the
-development environment used for this validation.
+The project test suite currently contains **34 tests** across four test modules (`test_key_generation.py`, `test_sign_verify.py`, `test_security_experiments.py`, and `test_cli.py`), all passing in the development environment used for this validation.

@@ -58,48 +58,62 @@ function startPythonBackend() {
             env: { ...process.env, PYTHONUNBUFFERED: "1" }
         });
         let resolved = false;
+        let pollInterval = null;
+        const cleanup = () => {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+        };
         pythonProcess.stdout?.on("data", (data) => {
             const text = data.toString();
-            console.log(`[Python Backend]: ${text.trim()}`);
+            console.log("[Python Backend]: " + text.trim());
             const portMatch = text.match(/SERVER_READY_PORT:(\d+)/);
             if (portMatch && !resolved) {
                 resolved = true;
+                cleanup();
                 serverPort = parseInt(portMatch[1], 10);
                 resolve(serverPort);
             }
         });
         pythonProcess.stderr?.on("data", (data) => {
-            console.error(`[Python Backend Error]: ${data.toString().trim()}`);
+            console.error("[Python Backend Error]: " + data.toString().trim());
         });
         pythonProcess.on("error", (err) => {
             console.error("[Python Process Failed]:", err);
             if (!resolved) {
                 resolved = true;
+                cleanup();
                 reject(err);
             }
         });
         pythonProcess.on("exit", (code) => {
-            console.log(`[Python Backend Exited]: code ${code}`);
+            console.log("[Python Backend Exited]: code " + code);
+            cleanup();
         });
         // Fallback: poll server readiness if port token wasn't captured immediately
         let attempts = 0;
-        const interval = setInterval(() => {
+        pollInterval = setInterval(() => {
+            if (resolved) {
+                cleanup();
+                return;
+            }
             attempts++;
-            const req = http.get(`http://localhost:${serverPort}/api/sample-artifacts`, { method: "POST" }, (res) => {
+            const req = http.get("http://localhost:" + serverPort + "/api/sample-artifacts", { method: "POST" }, (res) => {
                 if (!resolved) {
                     resolved = true;
-                    clearInterval(interval);
+                    cleanup();
                     resolve(serverPort);
                 }
             });
             req.on("error", () => {
-                if (attempts > 30 && !resolved) {
-                    clearInterval(interval);
+                if (attempts > 25 && !resolved) {
                     resolved = true;
+                    cleanup();
                     resolve(serverPort); // Try loading anyway
                 }
             });
-        }, 300);
+        }, 400);
     });
 }
 function createMainWindow(port) {
@@ -119,7 +133,7 @@ function createMainWindow(port) {
         autoHideMenuBar: true,
         show: false
     });
-    mainWindow.loadURL(`http://localhost:${port}`);
+    mainWindow.loadURL("http://localhost:" + port);
     mainWindow.once("ready-to-show", () => {
         mainWindow?.show();
     });

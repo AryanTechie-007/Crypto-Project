@@ -43,7 +43,8 @@ class CryptoGuardHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         # Clean logging
-        sys.stderr.write(f"[{self.log_date_time_string()}] {format % args}\n")
+        sys.stdout.write(f"[{self.log_date_time_string()}] {format % args}\n")
+        sys.stdout.flush()
 
     def send_json(self, status_code: int, data: Dict[str, Any]):
         response_bytes = json.dumps(data).encode("utf-8")

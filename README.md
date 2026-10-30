@@ -11,7 +11,7 @@
 
 ## 📌 Project Overview
 
-This project implements **Project 4: Digital Signature-Based Document Verification** for the University Cryptography curriculum.
+This project implements **Digital Signature-Based Document Verification** for the University Cryptography curriculum.
 
 The core objective is to allow an author to digitally sign a document using the **Ed25519** scheme and allow any third-party verifier to independently verify:
 1. **Document Integrity:** Confirmation that not a single byte, space, or character has been modified.
@@ -56,17 +56,6 @@ Crypto-Project/
     └── experiments.md              # [Person 2] Security experiments log & observations
 ```
 
----
-
-## 👥 Team Work Distribution
-
-| Member | Role | Core Deliverables |
-| :--- | :--- | :--- |
-| **Person 1** | **Cryptographic Core & Key Management** | Ed25519 key generation (`key_manager.py`), detached signing (`document_signer.py`), private-key security, cryptographic documentation, and baseline test suite. |
-| **Person 2** | **Verification, Key Trust & Experiments** | Verification robustness (`signature_verifier.py`), key fingerprinting (`key_fingerprint.py`), five required security experiment tests (`test_security_experiments.py`), and documentation (`experiments.md`). |
-| **Person 3** | **Application Interface & Submission** | User interface / CLI (`main.py`), end-to-end integration, CLI test suite (`test_cli.py`), execution guide, and final report compilation. |
-
----
 
 ## 🚀 Quick Start & Installation
 

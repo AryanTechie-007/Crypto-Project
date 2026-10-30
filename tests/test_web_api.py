@@ -163,14 +163,6 @@ class TestWebApiServer(unittest.TestCase):
         _, mismatch_res = self.post_json("/api/fingerprint", {"publicKey": pub_b64, "expected": "SHA256:00:11"})
         self.assertFalse(mismatch_res["matches"])
 
-    def test_run_experiments_endpoint(self):
-        """Test /api/experiments executes all 5 required security experiments."""
-        status, exps = self.post_json("/api/experiments", {})
-        self.assertEqual(status, 200)
-        self.assertEqual(len(exps), 5)
-        for exp in exps:
-            self.assertTrue(exp["passed"], f"Experiment {exp['id']} failed")
-
 
 if __name__ == "__main__":
     unittest.main()

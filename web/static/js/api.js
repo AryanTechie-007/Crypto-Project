@@ -36,9 +36,6 @@ export class CryptoGuardApi {
     static async computeFingerprint(req) {
         return this.post('/fingerprint', req);
     }
-    static async runExperiments() {
-        return this.post('/experiments', {});
-    }
     static async loadSampleArtifacts() {
         return this.post('/sample-artifacts', {});
     }

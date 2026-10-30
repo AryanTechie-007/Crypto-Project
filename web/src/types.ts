@@ -65,16 +65,6 @@ export interface FingerprintResponse {
   error?: string;
 }
 
-export interface ExperimentResult {
-  id: number;
-  title: string;
-  description: string;
-  passed: boolean;
-  expected: string;
-  observed: string;
-  details: string;
-}
-
 export interface DropzoneOptions {
   acceptExtensions?: string[];
   maxSizeMB?: number;

@@ -27,7 +27,6 @@ class CryptoGuardApp {
     this.initSignActions();
     this.initKeygenActions();
     this.initFingerprintActions();
-    this.initExperimentsActions();
     this.initDesktopMode();
   }
 
@@ -382,13 +381,13 @@ class CryptoGuardApp {
           if (res.matches === true) {
             trustResultBox.classList.add('banner-success');
             trustResultBox.innerHTML = `
-              <strong>&#10004; TRUSTED ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â FINGERPRINT MATCHES</strong><br/>
+              <strong>&#10004; TRUSTED ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â FINGERPRINT MATCHES</strong><br/>
               The public key matches the authenticated reference value. Public-key substitution is ruled out.
             `;
           } else {
             trustResultBox.classList.add('banner-error');
             trustResultBox.innerHTML = `
-              <strong>&#9888; UNTRUSTED ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â FINGERPRINT MISMATCH</strong><br/>
+              <strong>&#9888; UNTRUSTED ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â FINGERPRINT MISMATCH</strong><br/>
               The public key does NOT match the expected reference!<br/>
               Calculated: <code>${res.fingerprint}</code><br/>
               Expected: <code>${expected}</code><br/>
@@ -416,46 +415,6 @@ class CryptoGuardApp {
       }
     } catch (err: any) {
       console.error('Auto fingerprint failed:', err);
-    }
-  }
-
-  // -------------------------------------------------------------
-  // 5. Security Experiments Lab
-  // -------------------------------------------------------------
-  private initExperimentsActions(): void {
-    const runBtn = document.getElementById('btn-run-all-experiments');
-    const container = document.getElementById('experiments-cards-container');
-
-    if (runBtn && container) {
-      runBtn.addEventListener('click', async () => {
-        try {
-          runBtn.classList.add('loading');
-          const results = await CryptoGuardApi.runExperiments();
-          container.innerHTML = '';
-
-          results.forEach((exp) => {
-            const card = document.createElement('div');
-            card.className = `experiment-card ${exp.passed ? 'exp-pass' : 'exp-fail'}`;
-            card.innerHTML = `
-              <div class="exp-header">
-                <span class="exp-badge">${exp.passed ? '&#10004; PASS' : '&#10008; FAIL'}</span>
-                <span class="exp-title">Experiment ${exp.id}: ${exp.title}</span>
-              </div>
-              <p class="exp-desc">${exp.description}</p>
-              <div class="exp-details">
-                <div><strong>Expected:</strong> ${exp.expected}</div>
-                <div><strong>Observed:</strong> ${exp.observed}</div>
-                <div class="exp-sub">${exp.details}</div>
-              </div>
-            `;
-            container.appendChild(card);
-          });
-        } catch (err: any) {
-          alert('Failed to run experiments: ' + err.message);
-        } finally {
-          runBtn.classList.remove('loading');
-        }
-      });
     }
   }
 

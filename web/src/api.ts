@@ -12,7 +12,6 @@ import type {
   KeygenResponse,
   FingerprintRequest,
   FingerprintResponse,
-  ExperimentResult,
   FilePayload,
 } from './types.js';
 
@@ -55,10 +54,6 @@ export class CryptoGuardApi {
 
   public static async computeFingerprint(req: FingerprintRequest): Promise<FingerprintResponse> {
     return this.post<FingerprintResponse>('/fingerprint', req);
-  }
-
-  public static async runExperiments(): Promise<ExperimentResult[]> {
-    return this.post<ExperimentResult[]>('/experiments', {});
   }
 
   public static async loadSampleArtifacts(): Promise<{

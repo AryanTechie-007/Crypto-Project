@@ -10,7 +10,7 @@
 
 ---
 
-## 📌 Project Overview
+## ðŸ“Œ Project Overview
 
 This project implements **Project 4: Digital Signature-Based Document Verification** for the University Cryptography curriculum.
 
@@ -21,76 +21,76 @@ The core objective is to allow an author to digitally sign a document using the 
 
 ---
 
-## 🏗️ Repository Architecture
+## ðŸ—ï¸ Repository Architecture
 
 ```
 Crypto-Project/
-├── .gitignore                      # Excludes private keys, caches, virtual environments
-├── requirements.txt                # Python cryptographic dependencies (cryptography, pytest)
-├── package.json                    # Electron & TypeScript project manifest
-├── tsconfig.json                   # Web TypeScript compiler configuration
-├── tsconfig.electron.json          # Electron TypeScript compiler configuration
-├── start.ps1                       # [PowerShell] Native PowerShell 1-click desktop launcher
-├── start.bat                       # [Batchfile] Windows 1-click desktop launcher
-├── start.sh                        # [Shell] Linux/macOS 1-click desktop launcher
-├── server.py                       # [Python] In-memory cryptographic engine & backend service
-├── README.md                       # Project documentation & execution guide
-│
-├── electron/                       # Electron Desktop Application Source (TypeScript)
-│   ├── main.ts                     # Main process (window manager & background backend orchestrator)
-│   └── preload.ts                  # Secure preload bridge exposing window controls
-│
-├── dist-electron/                  # Compiled Electron Main & Preload JavaScript
-│   ├── main.js
-│   └── preload.js
-│
-├── web/                            # Desktop UI Layer (TypeScript / JS / HTML / CSS)
-│   ├── index.html                  # Semantic desktop shell with Vertical Tabs & Dropzones
-│   ├── static/
-│   │   ├── css/
-│   │   │   └── styles.css          # Modern glassmorphic styles, animations & themes
-│   │   └── js/
-│   │       ├── api.js              # Native HTTP API client module
-│   │       ├── dropzone.js         # Interactive drag-and-drop file manager
-│   │       └── app.js              # App controller & dynamic UI renderer
-│   └── src/
-│       ├── types.ts                # Strong TypeScript interfaces
-│       ├── api.ts                  # Strongly typed API client
-│       ├── dropzone.ts             # Drag-and-drop manager class
-│       └── app.ts                  # Main UI orchestrator
-│
-├── src/                            # Core Cryptographic Engine (RFC 8032 Ed25519)
-│   ├── __init__.py                 # Package declaration and public API exports
-│   ├── key_manager.py              # [Person 1] Ed25519 key generation, PEM serialization & security
-│   ├── document_signer.py          # [Person 1] Detached document signing (exact byte preservation)
-│   ├── signature_verifier.py       # [Person 1/2] Safe signature verification & error handling
-│   ├── key_fingerprint.py          # [Person 1/2] Canonical public-key SHA-256 fingerprinting
-│   └── main.py                     # [Person 3] CLI application and workflow orchestrator
-│
-├── tests/                          # Automated test suite (unittest / pytest compatible)
-│   ├── __init__.py
-│   ├── test_key_generation.py      # [Person 1] Tests key generation, serialization, passphrase protection
-│   ├── test_sign_verify.py         # [Person 1/2] Tests signing, verification, and tamper detection
-│   ├── test_security_experiments.py # [Person 2] Five required security experiments & key-trust tests
-│   ├── test_cli.py                 # [Person 3] End-to-end CLI command and workflow tests
-│   └── test_web_api.py             # [Team] In-memory API and static file serving tests
-│
-├── sample_data/                    # Sample documents for verification
-│   └── sample_document.txt         # Synthetic university academic credential
-│
-├── artifacts/                      # Public submission deliverables (Requirement 8 compliant)
-│   ├── README.md                   # Explanation of artifacts & private key exclusion
-│   ├── signer_public_key.pem       # Authentic public key (SPKI PEM format)
-│   └── sample_document.sig         # 64-byte detached digital signature of sample_document.txt
-│
-└── docs/                           # Technical documentation & security analysis
-    ├── cryptographic_architecture.md # [Person 1] Mathematical basis, threat model & API spec
-    └── experiments.md              # [Person 2] Security experiments log & observations
+â”œâ”€â”€ .gitignore                      # Excludes private keys, caches, virtual environments
+â”œâ”€â”€ requirements.txt                # Python cryptographic dependencies (cryptography, pytest)
+â”œâ”€â”€ package.json                    # Electron & TypeScript project manifest
+â”œâ”€â”€ tsconfig.json                   # Web TypeScript compiler configuration
+â”œâ”€â”€ tsconfig.electron.json          # Electron TypeScript compiler configuration
+â”œâ”€â”€ start.ps1                       # [PowerShell] Native PowerShell 1-click desktop launcher
+â”œâ”€â”€ start.bat                       # [Batchfile] Windows 1-click desktop launcher
+â”œâ”€â”€ start.sh                        # [Shell] Linux/macOS 1-click desktop launcher
+â”œâ”€â”€ server.py                       # [Python] In-memory cryptographic engine & backend service
+â”œâ”€â”€ README.md                       # Project documentation & execution guide
+â”‚
+â”œâ”€â”€ electron/                       # Electron Desktop Application Source (TypeScript)
+â”‚   â”œâ”€â”€ main.ts                     # Main process (window manager & background backend orchestrator)
+â”‚   â””â”€â”€ preload.ts                  # Secure preload bridge exposing window controls
+â”‚
+â”œâ”€â”€ dist-electron/                  # Compiled Electron Main & Preload JavaScript
+â”‚   â”œâ”€â”€ main.js
+â”‚   â””â”€â”€ preload.js
+â”‚
+â”œâ”€â”€ web/                            # Desktop UI Layer (TypeScript / JS / HTML / CSS)
+â”‚   â”œâ”€â”€ index.html                  # Semantic desktop shell with Vertical Tabs & Dropzones
+â”‚   â”œâ”€â”€ static/
+â”‚   â”‚   â”œâ”€â”€ css/
+â”‚   â”‚   â”‚   â””â”€â”€ styles.css          # Modern glassmorphic styles, animations & themes
+â”‚   â”‚   â””â”€â”€ js/
+â”‚   â”‚       â”œâ”€â”€ api.js              # Native HTTP API client module
+â”‚   â”‚       â”œâ”€â”€ dropzone.js         # Interactive drag-and-drop file manager
+â”‚   â”‚       â””â”€â”€ app.js              # App controller & dynamic UI renderer
+â”‚   â””â”€â”€ src/
+â”‚       â”œâ”€â”€ types.ts                # Strong TypeScript interfaces
+â”‚       â”œâ”€â”€ api.ts                  # Strongly typed API client
+â”‚       â”œâ”€â”€ dropzone.ts             # Drag-and-drop manager class
+â”‚       â””â”€â”€ app.ts                  # Main UI orchestrator
+â”‚
+â”œâ”€â”€ src/                            # Core Cryptographic Engine (RFC 8032 Ed25519)
+â”‚   â”œâ”€â”€ __init__.py                 # Package declaration and public API exports
+â”‚   â”œâ”€â”€ key_manager.py              # [Person 1] Ed25519 key generation, PEM serialization & security
+â”‚   â”œâ”€â”€ document_signer.py          # [Person 1] Detached document signing (exact byte preservation)
+â”‚   â”œâ”€â”€ signature_verifier.py       # [Person 1/2] Safe signature verification & error handling
+â”‚   â”œâ”€â”€ key_fingerprint.py          # [Person 1/2] Canonical public-key SHA-256 fingerprinting
+â”‚   â””â”€â”€ main.py                     # [Person 3] CLI application and workflow orchestrator
+â”‚
+â”œâ”€â”€ tests/                          # Automated test suite (unittest / pytest compatible)
+â”‚   â”œâ”€â”€ __init__.py
+â”‚   â”œâ”€â”€ test_key_generation.py      # [Person 1] Tests key generation, serialization, passphrase protection
+â”‚   â”œâ”€â”€ test_sign_verify.py         # [Person 1/2] Tests signing, verification, and tamper detection
+â”‚   â”œâ”€â”€ test_security_experiments.py # [Person 2] Five required security experiments & key-trust tests
+â”‚   â”œâ”€â”€ test_cli.py                 # [Person 3] End-to-end CLI command and workflow tests
+â”‚   â””â”€â”€ test_web_api.py             # [Team] In-memory API and static file serving tests
+â”‚
+â”œâ”€â”€ sample_data/                    # Sample documents for verification
+â”‚   â””â”€â”€ sample_document.txt         # Synthetic university academic credential
+â”‚
+â”œâ”€â”€ artifacts/                      # Public submission deliverables (Requirement 8 compliant)
+â”‚   â”œâ”€â”€ README.md                   # Explanation of artifacts & private key exclusion
+â”‚   â”œâ”€â”€ signer_public_key.pem       # Authentic public key (SPKI PEM format)
+â”‚   â””â”€â”€ sample_document.sig         # 64-byte detached digital signature of sample_document.txt
+â”‚
+â””â”€â”€ docs/                           # Technical documentation & security analysis
+    â”œâ”€â”€ cryptographic_architecture.md # [Person 1] Mathematical basis, threat model & API spec
+    â””â”€â”€ experiments.md              # [Person 2] Security experiments log & observations
 ```
 
 ---
 
-## 🚀 Launch the Electron Desktop Application
+## ðŸš€ Launch the Electron Desktop Application
 
 Launch the native desktop application with **Vertical Navigation Tabs** and **Drag-and-Drop Dropzones** (zero hardcoded paths):
 
@@ -113,20 +113,20 @@ chmod +x start.sh
 
 ---
 
-## 🧪 Run Automated Tests
-All 42 tests use Python's built-in `unittest` runner and are also fully compatible with `pytest`:
+## ðŸ§ª Run Automated Tests
+All 32 tests use Python's built-in `unittest` runner and are also fully compatible with `pytest`:
 ```bash
 python -m unittest discover tests -v
 ```
 
 ---
 
-## 🖥️ Desktop Application Features
+## ðŸ–¥ï¸ Desktop Application Features
 
 1. **Standalone Electron Window:**
    * Runs in its own dedicated, native desktop window (no browser tabs, no URL bar, native system controls).
 2. **Vertical Navigation Tabs:**
-   * Left-hand sidebar with tabs for **Verify Document**, **Sign Document**, **Generate Keys**, **Key Fingerprint**, and **Security Lab**.
+   * Left-hand sidebar with tabs for **Verify Document**, **Sign Document**, **Generate Keys**, **Key Fingerprint**, and **Key Fingerprint**.
 3. **Drag-and-Drop Logic:**
    * Interactive dropzones for documents, detached `.sig` signatures, and `.pem` keys with dragover animations, file previews, and instant byte parsing.
 4. **Zero Hardcoded Paths:**
@@ -134,12 +134,11 @@ python -m unittest discover tests -v
 5. **Document Verification:**
    * Instant color-coded badges: **Green** for Authentic and unmodified documents; **Red** for tampered files, invalid keys, or corrupted signatures.
    * Auto-extracts the signer's public key fingerprint.
-6. **Interactive Security Lab:**
-   * Executes all 5 required university security experiments live in one click.
+
 
 ---
 
-## 💻 Command-Line Interface (CLI)
+## ðŸ’» Command-Line Interface (CLI)
 
 The CLI orchestrator in `src/main.py` is preserved for scripting:
 
@@ -153,7 +152,7 @@ python -m src.main all
 
 ---
 
-## 🔒 Security & Key Management (Requirement 8)
+## ðŸ”’ Security & Key Management (Requirement 8)
 
 * **Private Key Protection:** In strict compliance with assignment guidelines, **private keys are never committed to this repository**.
 * `.gitignore` prevents inadvertent commits of private keys (`*.key`, `*.priv`, `*private*`, `*.pkcs8`).
@@ -161,5 +160,5 @@ python -m src.main all
 
 ---
 
-## 📄 License
+## ðŸ“„ License
 This project is developed for educational and academic assessment purposes.

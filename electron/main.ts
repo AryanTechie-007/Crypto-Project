@@ -3,7 +3,7 @@ import { spawn, ChildProcess } from "child_process";
 import * as path from "path";
 import * as http from "http";
 
-// Disable hardware acceleration to prevent GPU blank screen glitches on Windows
+// Disable hardware acceleration to eliminate blank/black screen GPU driver issues on Windows
 app.disableHardwareAcceleration();
 
 let mainWindow: BrowserWindow | null = null;
@@ -22,7 +22,8 @@ function startPythonBackend(): Promise<number> {
     const pythonCmd = findPythonCommand();
     const serverScript = path.join(app.getAppPath(), "server.py");
 
-    pythonProcess = spawn(pythonCmd, [serverScript, "8080", "--electron"], {
+    // Spawn server.py with "0" to request a guaranteed free ephemeral port from OS
+    pythonProcess = spawn(pythonCmd, [serverScript, "0", "--electron"], {
       cwd: app.getAppPath(),
       stdio: ["pipe", "pipe", "pipe"],
       env: { ...process.env, PYTHONUNBUFFERED: "1" }
@@ -77,7 +78,7 @@ function startPythonBackend(): Promise<number> {
         return;
       }
       attempts++;
-      const req = http.get("http://localhost:" + serverPort + "/api/sample-artifacts", { method: "POST" }, (res) => {
+      const req = http.get("http://127.0.0.1:" + serverPort + "/api/sample-artifacts", { method: "POST" }, (res) => {
         if (!resolved) {
           resolved = true;
           cleanup();
@@ -91,7 +92,22 @@ function startPythonBackend(): Promise<number> {
           resolve(serverPort);
         }
       });
-    }, 400);
+    }, 300);
+  });
+}
+
+function loadAppUrl(win: BrowserWindow, port: number, retries = 5) {
+  const targetUrl = "http://127.0.0.1:" + port;
+  console.log("[Electron] Loading application at " + targetUrl);
+  win.loadURL(targetUrl).catch((err: Error) => {
+    console.warn("[Electron] Initial load attempt failed (" + err.message + "), retrying in 300ms...");
+    if (retries > 0) {
+      setTimeout(() => {
+        if (win && !win.isDestroyed()) {
+          loadAppUrl(win, port, retries - 1);
+        }
+      }, 300);
+    }
   });
 }
 
@@ -115,17 +131,16 @@ function createMainWindow(port: number) {
 
   // Diagnostics
   mainWindow.webContents.on("did-fail-load", (event, errorCode, errorDescription, validatedURL) => {
-    console.error("[Electron Error] Page failed to load:", errorCode, errorDescription, validatedURL);
+    console.warn("[Electron] did-fail-load:", errorCode, errorDescription, validatedURL);
   });
 
   mainWindow.webContents.on("console-message", (event, level, message, line, sourceId) => {
-    // Forward renderer warnings and messages
     if (level >= 2) {
       console.warn("[Renderer]: " + message + " (" + sourceId + ":" + line + ")");
     }
   });
 
-  mainWindow.loadURL("http://localhost:" + port);
+  loadAppUrl(mainWindow, port);
 
   mainWindow.once("ready-to-show", () => {
     mainWindow?.show();
@@ -137,14 +152,14 @@ function createMainWindow(port: number) {
     }
   });
 
-  // Fallback to guarantee display if compositor events are delayed
+  // Fallback to guarantee display
   setTimeout(() => {
     if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
       mainWindow.show();
     }
   }, 1200);
 
-  // Open external links in default system browser, not inside the Electron window
+  // Open external links in default system browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith("http://") || url.startsWith("https://")) {
       shell.openExternal(url);

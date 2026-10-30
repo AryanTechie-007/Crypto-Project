@@ -37,7 +37,7 @@ const electron_1 = require("electron");
 const child_process_1 = require("child_process");
 const path = __importStar(require("path"));
 const http = __importStar(require("http"));
-// Disable hardware acceleration to prevent GPU blank screen glitches on Windows
+// Disable hardware acceleration to eliminate blank/black screen GPU driver issues on Windows
 electron_1.app.disableHardwareAcceleration();
 let mainWindow = null;
 let pythonProcess = null;
@@ -52,7 +52,8 @@ function startPythonBackend() {
     return new Promise((resolve, reject) => {
         const pythonCmd = findPythonCommand();
         const serverScript = path.join(electron_1.app.getAppPath(), "server.py");
-        pythonProcess = (0, child_process_1.spawn)(pythonCmd, [serverScript, "8080", "--electron"], {
+        // Spawn server.py with "0" to request a guaranteed free ephemeral port from OS
+        pythonProcess = (0, child_process_1.spawn)(pythonCmd, [serverScript, "0", "--electron"], {
             cwd: electron_1.app.getAppPath(),
             stdio: ["pipe", "pipe", "pipe"],
             env: { ...process.env, PYTHONUNBUFFERED: "1" }
@@ -99,7 +100,7 @@ function startPythonBackend() {
                 return;
             }
             attempts++;
-            const req = http.get("http://localhost:" + serverPort + "/api/sample-artifacts", { method: "POST" }, (res) => {
+            const req = http.get("http://127.0.0.1:" + serverPort + "/api/sample-artifacts", { method: "POST" }, (res) => {
                 if (!resolved) {
                     resolved = true;
                     cleanup();
@@ -113,7 +114,21 @@ function startPythonBackend() {
                     resolve(serverPort);
                 }
             });
-        }, 400);
+        }, 300);
+    });
+}
+function loadAppUrl(win, port, retries = 5) {
+    const targetUrl = "http://127.0.0.1:" + port;
+    console.log("[Electron] Loading application at " + targetUrl);
+    win.loadURL(targetUrl).catch((err) => {
+        console.warn("[Electron] Initial load attempt failed (" + err.message + "), retrying in 300ms...");
+        if (retries > 0) {
+            setTimeout(() => {
+                if (win && !win.isDestroyed()) {
+                    loadAppUrl(win, port, retries - 1);
+                }
+            }, 300);
+        }
     });
 }
 function createMainWindow(port) {
@@ -135,15 +150,14 @@ function createMainWindow(port) {
     });
     // Diagnostics
     mainWindow.webContents.on("did-fail-load", (event, errorCode, errorDescription, validatedURL) => {
-        console.error("[Electron Error] Page failed to load:", errorCode, errorDescription, validatedURL);
+        console.warn("[Electron] did-fail-load:", errorCode, errorDescription, validatedURL);
     });
     mainWindow.webContents.on("console-message", (event, level, message, line, sourceId) => {
-        // Forward renderer warnings and messages
         if (level >= 2) {
             console.warn("[Renderer]: " + message + " (" + sourceId + ":" + line + ")");
         }
     });
-    mainWindow.loadURL("http://localhost:" + port);
+    loadAppUrl(mainWindow, port);
     mainWindow.once("ready-to-show", () => {
         mainWindow?.show();
     });
@@ -152,13 +166,13 @@ function createMainWindow(port) {
             mainWindow.show();
         }
     });
-    // Fallback to guarantee display if compositor events are delayed
+    // Fallback to guarantee display
     setTimeout(() => {
         if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
             mainWindow.show();
         }
     }, 1200);
-    // Open external links in default system browser, not inside the Electron window
+    // Open external links in default system browser
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith("http://") || url.startsWith("https://")) {
             electron_1.shell.openExternal(url);

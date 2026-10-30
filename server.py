@@ -12,6 +12,7 @@ import json
 import mimetypes
 import os
 import sys
+import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -427,21 +428,37 @@ class CryptoGuardHandler(BaseHTTPRequestHandler):
             self.send_json(500, {"error": str(e)})
 
 
-def run_server(port: int = 8080, open_browser: bool = True):
-    server_address = ("", port)
+def parent_watchdog():
+    """Watchdog thread that cleanly terminates Python if the parent Electron process dies."""
     try:
+        sys.stdin.read()
+    except Exception:
+        pass
+    os._exit(0)
+
+
+def run_server(port: int = 8080, open_browser: bool = True, electron_mode: bool = False):
+    if electron_mode:
+        watchdog = threading.Thread(target=parent_watchdog, daemon=True)
+        watchdog.start()
+
+    host = "127.0.0.1"
+
+    if port == 0:
+        server_address = (host, 0)
         httpd = ThreadingHTTPServer(server_address, CryptoGuardHandler)
-    except OSError:
-        port = 8081
-        server_address = ("", port)
+        port = httpd.server_port
+    else:
+        server_address = (host, port)
         try:
             httpd = ThreadingHTTPServer(server_address, CryptoGuardHandler)
         except OSError:
-            server_address = ("", 0)
+            # Fall back to OS-assigned ephemeral port
+            server_address = (host, 0)
             httpd = ThreadingHTTPServer(server_address, CryptoGuardHandler)
             port = httpd.server_port
 
-    url = f"http://localhost:{port}"
+    url = f"http://127.0.0.1:{port}"
     print(f"\n========================================================")
     print(f" CryptoGuard Application Server Running")
     print(f" URL: {url}")
@@ -465,9 +482,13 @@ def run_server(port: int = 8080, open_browser: bool = True):
 if __name__ == "__main__":
     port = 8080
     open_browser = True
+    electron_mode = False
     for arg in sys.argv[1:]:
         if arg.isdigit():
             port = int(arg)
-        elif arg in ("--no-browser", "--electron"):
+        elif arg == "--electron":
             open_browser = False
-    run_server(port, open_browser=open_browser)
+            electron_mode = True
+        elif arg == "--no-browser":
+            open_browser = False
+    run_server(port, open_browser=open_browser, electron_mode=electron_mode)

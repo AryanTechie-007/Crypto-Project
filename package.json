@@ -4,7 +4,7 @@
   "description": "Ed25519 Detached Digital Signature & Verification Web Application",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
+    "start": "python server.py",
     "build": "tsc"
   },
   "keywords": [

@@ -94,19 +94,41 @@ class SignatureVerifier:
         Returns:
             VerificationResult: Contains boolean status and descriptive explanation.
         """
-        # 1. Read document bytes
-        doc_path = Path(document_path)
-        if not doc_path.is_file():
+        # Validate caller-supplied types before constructing paths or loading keys.
+        if not isinstance(document_path, (str, Path)):
             return VerificationResult(
                 is_valid=False,
-                message="Verification failed: Document file does not exist.",
-                details=f"Path not found: {doc_path}"
+                message="Verification failed: Invalid document path.",
+                details=f"Expected str or Path, got {type(document_path).__name__}"
+            )
+        if not isinstance(signature_source, (str, Path, bytes, bytearray)):
+            return VerificationResult(
+                is_valid=False,
+                message="Verification failed: Invalid signature source type.",
+                details=f"Expected path or bytes, got {type(signature_source).__name__}"
+            )
+        if not isinstance(
+            public_key_source,
+            (str, Path, bytes, bytearray, ed25519.Ed25519PublicKey)
+        ):
+            return VerificationResult(
+                is_valid=False,
+                message="Verification failed: Invalid public key source type.",
+                details=f"Expected path, bytes, or Ed25519 public key, got {type(public_key_source).__name__}"
             )
 
+        # 1. Read document bytes exactly as signed (binary mode).
         try:
+            doc_path = Path(document_path)
+            if not doc_path.is_file():
+                return VerificationResult(
+                    is_valid=False,
+                    message="Verification failed: Document file does not exist.",
+                    details=f"Path not found: {doc_path}"
+                )
             with open(doc_path, "rb") as f:
                 doc_bytes = f.read()
-        except OSError as e:
+        except (OSError, ValueError, TypeError) as e:
             return VerificationResult(
                 is_valid=False,
                 message="Verification failed: Unable to read document file.",
@@ -115,7 +137,14 @@ class SignatureVerifier:
 
         # 2. Read signature bytes
         if isinstance(signature_source, (str, Path)):
-            sig_path = Path(signature_source)
+            try:
+                sig_path = Path(signature_source)
+            except (TypeError, ValueError) as e:
+                return VerificationResult(
+                    is_valid=False,
+                    message="Verification failed: Invalid signature path.",
+                    details=str(e)
+                )
             if not sig_path.is_file():
                 return VerificationResult(
                     is_valid=False,
@@ -152,6 +181,8 @@ class SignatureVerifier:
             pub_key_obj = public_key_source
         else:
             try:
+                if isinstance(public_key_source, bytearray):
+                    public_key_source = bytes(public_key_source)
                 pub_key_obj = KeyManager.load_public_key(public_key_source)
             except FileNotFoundError:
                 return VerificationResult(

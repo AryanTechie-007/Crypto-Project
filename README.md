@@ -91,8 +91,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Run the Automated Test Suite
-All 34 tests use Python's built-in `unittest` runner (no external test runner required) and are also fully compatible with `pytest`:
+### 3. Launch the Desktop Application (CryptoGuard)
+Launch the interactive desktop GUI with dark/light mode and drag-and-drop file pickers:
+```bash
+python run_app.py
+```
+
+### 4. Run the Automated Test Suite
+All 42 tests use Python's built-in `unittest` runner (no external test runner required) and are also fully compatible with `pytest`:
 ```bash
 # Using standard Python unittest runner:
 python -m unittest discover tests -v
